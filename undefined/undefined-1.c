@@ -59,10 +59,15 @@ int main (int argc, char **argv)
   {
     a[i] = i; 
   }
+#ifndef BAD  
   a[i-1] = 0;   /* line A: safe array access */
-  //a[i] = 0;   /* line B: out-of-bound array access*/
+#else
+  a[i] = 0;   /* line B: out-of-bound array access*/
+#endif
 
+#ifndef SKIPC  
   process (a);  /* line C */
+#endif
 
-  return 42; 
+  return 0; 
 }
