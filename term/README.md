@@ -1,3 +1,10 @@
-Examples to show how termination and non-termination can be encoded for 
-a safety checker.
+Problems for termination, non-termination, and liveness.
+========================================================
+
+## Contributed by Caterina Urban and Arie Gurfinkel
+
+Each file `probXX.c` contains a verification problem. A proposed
+solution is in `probXX_solution.c`. 
+
+
 
