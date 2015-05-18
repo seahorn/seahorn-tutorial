@@ -44,8 +44,8 @@ int main (void)
     }
   
   /** initial assumptions on x */
-  __CPROVER_assume (x[0] > 0);
-  __CPROVER_assume (x[0] < CHAR_MAX - 1);
+  __VERIFIER_assume (x[0] > 0);
+  __VERIFIER_assume (x[0] < CHAR_MAX - 1);
 
   /** start in round 0 and run thread1 */
   r = 0;
@@ -58,8 +58,8 @@ int main (void)
   /** check assumptions */
   for (i = 0; i < R - 1; i++)
     {
-      __CPROVER_assume (x[i] == ix[i+1]);
-      __CPROVER_assume (y[i] == iy[i+1]);
+      __VERIFIER_assume (x[i] == ix[i+1]);
+      __VERIFIER_assume (y[i] == iy[i+1]);
     }
   
   /** check assertion */
@@ -114,8 +114,8 @@ void cs()
   
   oldr = r;
   r = nondet_char ();
-  __CPROVER_assume (r > oldr);
-  __CPROVER_assume (r < R);
+  __VERIFIER_assume (r > oldr);
+  __VERIFIER_assume (r < R);
   
 }
 
