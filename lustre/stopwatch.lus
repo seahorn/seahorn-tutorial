@@ -1,0 +1,45 @@
+
+
+-- Bistable switch
+node switch (on, off: bool) returns (state: bool); 
+let
+  state = if (false -> pre state) then not off else on;
+tel
+
+-- Counts steps if inc is true, can be reset
+node counter (reset,inc: bool) returns (out: int); 
+let
+  out = if reset then 0
+        else if inc then (0 -> pre_out) + 1 else (0 -> pre_out);
+tel
+
+-- Detects raising edges of a signal
+node edge (in: bool) returns (out: bool); 
+let
+  out = false -> in and (not pre in); 
+tel
+
+
+node stopwatch (on_off , reset , freeze:  bool) returns (time: int);
+var actual_time: int;
+running , frozen , on_off_pressed , r_pressed , freeze: bool;
+let
+
+  -- solution 
+  on_off_pressed = edge(on_off);
+  r_pressed = edge(reset);
+  f_pressed = edge(freeze);
+  running = switch(on_off_pressed , on_off_pressed); 
+  frozen = switch(f_pressed and running , f_pressed or on_off_pressed );
+  actual_time = counter(r_pressed and not running, running);
+  time = if frozen then (0 -> pre time) else actual_time; 
+tel
+
+
+node (on_off , reset , freeze:  bool) returns (OK: bool);
+var time: int;
+let
+  time = stopwatch(on_off , reset , freeze);
+  -- write some intresting properties about ths system
+  OK = ....;
+tel

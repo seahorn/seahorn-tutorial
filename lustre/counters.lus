@@ -1,0 +1,19 @@
+
+-- 1.  Write a synchronous observer in Lustre to prove that counter_spec and counter behave the same (i.e. they have the same output)
+
+-- 2. Write a horn clause encoding to prove it.
+
+node counter_spec(reset, active: bool) returns (safe: bool);
+var cpt: int;
+let
+  cpt = 0 -> if (pre cpt = 3) or reset then 0 else pre cpt + 1;
+  safe = active = (cpt = 2);
+tel
+
+node counter(reset: bool) returns (active: bool);
+var a, b: bool;
+let
+  a = false -> (not reset and not (pre b));
+  b = false -> (not reset and pre a);
+  active = a and b;
+tel

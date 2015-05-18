@@ -1,0 +1,18 @@
+
+node fib (reset: bool) returns (uN: int); 
+let
+  uN =
+    1 -> pre (
+              1 -> uN + pre uN 
+           );
+tel
+
+
+node top (reset: bool) returns (OK: bool); 
+var uN: int;
+let
+  uN = fib(reset);
+  -- write an intresting property about fib
+  OK = ....
+   
+tel

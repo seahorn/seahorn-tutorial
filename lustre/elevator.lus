@@ -1,0 +1,133 @@
+
+
+----------------------------------------------------
+
+-- Floor_i is true iff the elevator is at floor i
+
+-- Door_Open is true iff the elevator's door is open
+
+-- Call_i is true iff there is a call to go to floor i
+
+-- The elevator moves only when the door is closed and the Stop button is not pressed.
+
+-- The elevator will not pass the end positions, that is, go through the roof or the floor.
+
+-- A moving elevator halts only if
+  -- the Stop button is pressed, or the door is opened,
+  -- or the elevator has arrived at the destination floor.
+
+-- The elevator halts before changing direction.
+
+-- The signals sent to the motor are not contradictory
+
+node Control( Floor_1, Floor_2, Door_Open, Call_1, Call_2, Stop : bool )
+returns ( Motor_Up, Motor_Down : bool);
+var CanMove : bool;
+let
+--  CanMove = 
+
+--  Motor_Up =
+
+--  Motor_Down =
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  CanMove =  not Stop and not Door_Open ;
+
+  Motor_Up =  CanMove and not Floor_2 and
+              ((false -> pre Motor_Up) or Call_2) and
+              not (false -> pre Motor_Down);
+
+  Motor_Down =  CanMove and not Floor_1 and
+                ((false -> pre Motor_Down) or Call_1) and
+                not (false -> pre Motor_Up);
+tel
+
+
+
+node Environment( Motor_Up, Motor_Down : bool )
+returns ( Floor_1, Floor_2 : bool );
+var L : int;
+let
+  L = 0 -> if pre Motor_Up then (pre L) + 1
+           else if pre Motor_Down then (pre L) - 1
+           else pre L;
+
+  Floor_1 =  L = 0;
+  Floor_2 =  L = 5;
+tel
+
+
+node Simulate( Door_Open, Call_1, Call_2, Stop : bool )
+returns ( Motor_Up, Motor_Down : bool );
+var Floor_1, Floor_2 : bool;
+let
+  (Motor_Up, Motor_Down) = Control(Floor_1, Floor_2, Door_Open, Call_1, Call_2, Stop);
+
+  (Floor_1, Floor_2) = Environment(Motor_Up, Motor_Down);
+tel
+
+
+
+
+
+node Requirements( Floor_1, Floor_2, Door_Open, 
+                   Call_1, Call_2, Stop : bool )
+returns ( R1, R2, R3, R4, R5, R6 : bool );
+
+var Motor_Up, Motor_Down:  bool;
+  -- auxiliary streams
+    Moving, Halts : bool;
+
+let 
+  (Motor_Up, Motor_Down)
+   = Control(Floor_1, Floor_2, Door_Open, Call_1, Call_2, Stop);
+
+  -- auxiliary streams
+  -- Moves is true iff the elevator is moving now
+  -- Halts is true iff the elevator has come to a stop
+
+
+
+
+
+
+
+  Moving =  Motor_Up or Motor_Down;
+  Halts =  not Moving and (false -> pre Moving);
+
+
+  R1 =  Moving => not Door_Open and not Stop;
+  R2 =  (Floor_1 => not Motor_Down) and (Floor_2 => not Motor_Up);
+
+  R3 =  Halts => (Stop 
+                  or Door_Open
+                  or ((true -> pre Motor_Down) and Floor_1)
+                  or ((true -> pre Motor_Up) and Floor_2)
+                 );
+
+  R4 =  true ->
+        (Motor_Up => (not pre Motor_Down))
+        and (Motor_Down => (not pre Motor_Up));
+
+
+  R5 =  not (Motor_Up and Motor_Down);
+
+
+tel
+
+
+

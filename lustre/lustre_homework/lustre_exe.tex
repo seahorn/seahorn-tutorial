@@ -1,0 +1,165 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{stmaryrd} % for semantic brackets [[ ]]
+\usepackage{xspace}
+\usepackage{color}
+\usepackage[colorlinks]{hyperref}
+\usepackage[colorinlistoftodos, textwidth=4cm, shadow]{todonotes}
+\usepackage{listings}
+\lstdefinestyle{lustre}
+    { basicstyle=\scriptsize\sffamily,
+      morekeywords={let, tel, returns, implies, var, node, int, bool, if, then ,else, PROPERTY, or, pre, and},
+      showstringspaces=false,
+      numbers=none,
+      numbersep=1pt,
+      tabsize=6,
+      backgroundcolor=\color{white},
+      keywordstyle={[2]\color{black}\bfseries},
+      stringstyle=\mdseries\slshape\color{listingString},
+      commentstyle=\itshape\color{listingComment},
+      emphstyle={\itshape},
+      emphstyle={[2]\color{red}},
+      emphstyle={[3]\color{blue}\bfseries},
+      emphstyle={[4]\color{blue}},
+      mathescape=true
+    }
+\lstnewenvironment{lustre}
+  {\lstset{style=lustre}}{}
+
+\title{Lustre Exercises}
+
+\begin{document}
+
+\maketitle
+\section{Simple nodes}
+
+\begin{enumerate}
+\item Write a node $Sum$, with one input stream X and one output stream
+  S such that, at each instant, S contains the sum of all X's that the
+  node has seen so far.
+
+\item Implement $SumReset$, a version of $Sum$ above with an
+  additional Boolean input $Reset$ that makes $Sum$ start over from 0.
+
+\item Implement a node $Average$ with one integer input $X$ and one
+  Boolean input $Reset$, and that outputs the average of the stream
+  $X$ since the last time $Reset$ was true.
+
+\item Is the stream $(Sofar(X)\ and\ Sofar(Y))$ the same as the stream
+  $Sofar(X\ and\ Y)$? And how about the streams $(Sofar(X)\ or\ Sofar(Y))$ and
+  $Sofar(X\ or\ Y)$? Justify your answer.
+\end{enumerate}
+
+
+\section{Elevator}
+
+Consider a simple elevator, moving people up and down between two
+floors. In the elevator, there are three buttons: a button 1 to go to
+the first floor, a button 2 to go to the first floor, and a stop
+button to stop the elevator. On each floor, there is a button to call
+the elevator. Furthermore, the elevator has three sensors, the first
+indicating if the elevator is on the first floor or not, the second
+doing the same for the second floor, and the third indicating if the
+elevator's door is closed or not.  The elevator is moved up and down
+by a motor that is on the roof of the building. The motor is
+controlled by two signals, one for moving the elevator up and one for
+moving it down.  You are to implement the control system for this
+elevator. The control system looks at the buttons that are being
+pressed and the sensors that say where the elevator is and if the door
+is open, and then decides if the motor should move the elevator up or
+down, or do nothing.  For simplicity, we do not distinguish between
+the case of someone on floor 2 pressing the call button and someone in
+the elevator pressing the button 2. Similarly for the call button on
+floor 1 and button 1 in the elevator.
+
+\subsection{Safety Requirements}
+
+To understand better what the control system of the elevator is
+supposed to do, here is a list of safety requirements that any decent
+control system should satisfy.
+\begin{description}
+\item[R1] The elevator may only move when the door is closed and the
+  stop button is not pressed.
+\item[R2]	The elevator may not pass the end positions, that is, go through the roof or the floor.
+\item[R3] A moving elevator halts only if the stop button is pressed,
+  or the door is opened, or the elevator has arrived at the
+  destination floor.
+\item[R4]	The elevator must halt before changing direction.
+\item[R5]	The signals sent to the motor may not be contradictory.
+\end{description}
+
+
+\subsection{Problems I}
+
+Implement the control system as a Lustre node with the following interface:
+
+\begin{lustre}
+  node Control( $Floor_1$, $Floor_2$, $Door_{Open}$, $Call_1$, $Call_2$, Stop : bool )
+  returns ( $Motor_{Up}$, $Motor_{Down}$ : bool );
+\end{lustre}
+
+The Boolean streams $Floor_1$ and $Floor_2$ represent the output of
+the floor sensors. The value of stream $Call_1$ is true at time $n$ if
+and only if someone has pressed the call button on floor 1 or the
+button 1 in the elevator. Similarly for $Call_2$. The stream
+$Door_{Open}$ is the output of the door sensor (true iff the elevator
+door is open). The output streams $Motor_{Up}$ and $Motor_{Down}$
+represent the signals for the motor, to move the elevator up and down,
+respectively.
+
+We want to simulate the system implemented by the Control node. For
+that, it is helpful to introduce an auxiliary node that produces
+reasonable values for the sensors $Floor_1$ and $Floor_2$.  One
+possibility is to use a "environment" node like the following:
+
+\begin{lustre}
+node Environment( $Motor_{Up}$, $Motor_{Down}$ : bool )
+   returns ( $Floor_1$, $Floor_2$ : bool);
+var L: int;
+let
+  L = 0 -> if pre $Motor_{Up}$ then (pre L) + 1
+           else if pre $Motor_{Down}$ then (pre L) - 1
+           else pre L;
+  $Floor_1$ =  L = 0;
+  $Floor_2$ =  L = 5;
+tel
+\end{lustre}
+
+In the definition above we make the assumptions at each tick of the
+system's clock lasts one second, and it takes the elevator 5 seconds
+to reach one floor from the other. So we can see it as going through 5
+intermediate "levels" L when moving from one floor to the other.  Put
+together the two nodes $Control$ and $Environment$, in a new node with
+(exactly) the following interface:
+
+\begin{lustre}
+node Simulate( $Door_{Open}$, $Call_1$, $Call_2$, Stop : bool)
+   returns ( $Motor_{Up}$, $Motor_{Down}$ : bool );
+\end{lustre}
+
+%% Use Luke to build a simulator for your system (using --node Simulate). Then use the simulator to check visually if the safety requirements above hold. Look at the values returned by Simulate to see where the elevator is actually going.
+%% Your node should behave similarly to this sample Simulate.
+%% The control node used in that simulator is actually buggy. Use the simulator to expose its bug(s).
+
+
+\subsection{Problems II}
+
+Consider again the elevator problem in the previous exercise.  Define
+a synchronous observer node that expresses each of the safety
+requirements listed in the previous exercise. Your observer should
+have (exactly) the following interface:
+
+\begin{lustre}
+node Requirements( $Floor_1$, $Floor_2$, $Door_{Open}$, $Call_1$, $Call_2$, Stop: bool)
+   returns ( R1, R2, R3, R4, R5 : bool );
+\end{lustre}
+
+Use the Kind2 simulator tool to verify that the requirements hold!
+Modify the definition of the Control node as needed to satisfy all the
+requirements.
+
+NB: The Environment and Simulate nodes are not to be used in this
+exercise.
+
+\end{document}

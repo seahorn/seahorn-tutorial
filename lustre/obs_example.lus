@@ -1,0 +1,60 @@
+
+-----------------------------------------------------------------
+-- Boolean Switch
+--
+-- Model a switch with two buttons, Set and Reset.
+-- Pressing Set turns the switch on.
+-- Pressing Reset turns the switch off
+-- If Set and Reset are initially both unpressed,
+-- the initial position of the switch is determined by
+-- a third signal, Init
+
+node Switch( Set, Reset, Init : bool ) returns ( X : bool );
+let
+
+    X = if Set then true 
+           else if Reset then false
+           else (Init -> pre X);
+tel
+
+node Switch2( Set, Reset, Init : bool ) returns ( X : bool );
+let
+  X = if Reset then false else
+        if Set then true else
+          (Init -> pre(X));
+tel
+
+
+node Switch3( Set, Reset, Init : bool ) returns ( X : bool );
+let
+  X = Set or (not Reset and (Init -> pre(X))) ;
+tel
+
+
+
+--------------
+-- Solution
+----
+node ReqSwitch( Set, Reset, Init : bool )
+returns ( R1, R2, R3 : bool );
+var X : bool;
+let
+  X = Switch( Set, Reset, Init );
+
+  -- setting turns the switch on
+  R1  =  (Set => X);  -- not Set or X;
+  
+  -- resetting turns the switch off
+  R2 =  (not Set and Reset) =>  not X;
+  
+  -- doing nothing maintains the previous value
+  R3 = true -> ((not Set and not Reset) => X = pre X);
+
+
+  --%PROPERTY R1;
+  --%PROPERTY R2;
+  --%PROPERTY R3;
+
+tel
+
+

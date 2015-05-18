@@ -1,0 +1,21 @@
+
+node Sofar( X : bool ) returns ( Y : bool );
+let
+
+  Y = X -> (pre Y) and X;
+
+--true -> pre Y);
+tel
+
+
+node Property(X, Y: bool) returns (OK: bool);
+var y, w: bool;
+let
+
+  y = Sofar(X or Y);
+  w = Sofar(X) or Sofar(Y);
+  OK = y = w;
+  --!PROPERTY:  OK;
+  --!MAIN: true;
+tel
+  
