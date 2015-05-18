@@ -1,3 +1,4 @@
+/* requires --enable-indvar */
 int unknown(void);
 
 extern void __VERIFIER_assume (int);

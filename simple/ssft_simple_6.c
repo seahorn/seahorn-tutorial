@@ -1,3 +1,5 @@
+/* requires -O0 */
+
 int unknown(void);
 int unknown1(void);
 
