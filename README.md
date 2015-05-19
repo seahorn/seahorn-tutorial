@@ -4,7 +4,12 @@
 
 #About#
 
-SeaHorn tutorial. TBD
+* SeaHorn usage, source and binaries can be found [here](https://github.com/seahorn/seahorn)
+* Example usage:
+```
+sea pf simple/ssft_simple_1.c
+```
+
 #People#
 
 * [Arie Gurfinkel](arieg.bitbucket.org)
