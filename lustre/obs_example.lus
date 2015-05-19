@@ -41,19 +41,15 @@ var X : bool;
 let
   X = Switch( Set, Reset, Init );
 
-  -- setting turns the switch on
-  R1  =  (Set => X);  -- not Set or X;
+  -- write a property that proves that setting turns the switch on
+  R1  =  ...
   
-  -- resetting turns the switch off
-  R2 =  (not Set and Reset) =>  not X;
+  -- write a property that proves that resetting turns the switch off
+  R2 =  ...
   
-  -- doing nothing maintains the previous value
-  R3 = true -> ((not Set and not Reset) => X = pre X);
+  -- write a property that proves that doing nothing maintains the previous value
+  R3 = ...
 
-
-  --%PROPERTY R1;
-  --%PROPERTY R2;
-  --%PROPERTY R3;
 
 tel
 
