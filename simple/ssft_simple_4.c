@@ -1,9 +1,3 @@
-// ./build/run/bin/sea lfe-smt --solve play/neha-examples/ssft_simple_4.c --O3 ==> TRUE
-// ./build/run/bin/sea lfe-smt --solve play/neha-examples/ssft_simple_4.c --O0 ==> TRUE
-// ./build/run/bin/sea smt --solve play/neha-examples/ssft_simple_4.c -O3 --inline ==> TRUE
-// ./build/run/bin/sea smt --solve play/neha-examples/ssft_simple_4.c -O0 --inline ==> TRUE
-// ./build/run/bin/sea smt --solve play/neha-examples/ssft_simple_4.c -O0  ==> FALSE
-// ./build/run/bin/sea smt --solve play/neha-examples/ssft_simple_4.c -O3  ==> FALSE
 
 
 int unknown(void);
