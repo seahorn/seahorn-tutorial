@@ -34,8 +34,8 @@ void thread2 ()
 void main (void)
 {
   /** assume x is positive and not too large */
-  __CPROVER_assume (x > 0);
-  __CPROVER_assume (x < INT_MAX - 1);
+  __VERIFIER_assume (x > 0);
+  __VERIFIER_assume (x < INT_MAX - 1);
   
   /** run threads (not real pthreads syntax) */
   pthread_create (&thread1);
