@@ -28,6 +28,7 @@ int main (void)
 {
   int request, old, total;
   
+  total = nd();
   request = 0;
   do {
     lock ();

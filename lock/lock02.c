@@ -6,6 +6,7 @@ int main (void)
   int request, old, total;
   
   request = 0;
+  total = nd();
   do {
     lock ();
     old = total;
