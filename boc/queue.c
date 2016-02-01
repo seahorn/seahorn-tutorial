@@ -5,21 +5,26 @@
  
  * Commands to use:
  *
- * # compile
- * sea clang -S -o queue.ll queue.c
- * # instrument with buffer-overflow checks (BOC)
- * sea pp --boc -S -q queue.boc.ll queue.ll
- * # verify
- * sea pf --cex=trace.xml --inline queue.boc.ll 2>&1 | q.log
- * 
- * See q.log for a counterexample and the program being verified
+ * sea pf --bounds-check [--inline] [-g --cex=cex.xml --log=cex] queue.c
  **/
-extern int nd ();
 
-int buf[4];
+extern int nd (void);
+extern void __VERIFIER_error() __attribute__ ((__noreturn__));
+
+extern void __VERIFIER_assume(int);
+void __VERIFIER_assert(int v) __attribute__ ((__always_inline__))
+{if (!v) __VERIFIER_error ();}
+
+
+#define assume __VERIFIER_assume
+#define assert __VERIFIER_assert
+
+#define N 4
+
+int buf[N];
 int hi = 0;
 int lo = 0;
-int size = 4;
+int size = N;
 
 void enqueue (int x)
 {
