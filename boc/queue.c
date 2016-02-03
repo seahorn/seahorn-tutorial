@@ -5,7 +5,7 @@
  
  * Commands to use:
  *
- * sea pf --bounds-check [--inline] [-g --cex=cex.xml --log=cex] queue.c
+ * sea pf --do-bounds-check [--inline] [-g --cex=cex.xml --log=cex] queue.c
  **/
 
 extern int nd (void);
