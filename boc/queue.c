@@ -12,12 +12,9 @@ extern int nd (void);
 extern void __VERIFIER_error() __attribute__ ((__noreturn__));
 
 extern void __VERIFIER_assume(int);
-void __VERIFIER_assert(int v) __attribute__ ((__always_inline__))
-{if (!v) __VERIFIER_error ();}
-
 
 #define assume __VERIFIER_assume
-#define assert __VERIFIER_assert
+#define assert(v) if (!(v)) __VERIFIER_error();       
 
 #define N 4
 
