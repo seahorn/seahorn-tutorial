@@ -1,0 +1,166 @@
+/ag/git/seahorn/build/run/bin/clang -c -emit-llvm -D__SEAHORN__ -fgnu89-inline -m32 -I/ag/git/seahorn/build/run/include -g -o /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.bc list1_check.c
+/ag/git/seahorn/build/run/bin/seapp -o /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.bc --horn-inline-all --strip-extern=false --promote-assumptions=false --kill-vaarg=true -log cex /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.bc
+/ag/git/seahorn/build/run/bin/seapp -o /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.ms.bc --horn-mixed-sem --ms-reduce-main /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.bc
+/ag/git/seahorn/build/run/bin/seaopt -f -funit-at-a-time -o /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.ms.o.bc -O3 --enable-indvar=false --enable-loop-idiom=false --enable-nondet-init=false --unroll-threshold=150 --disable-loop-vectorization=true --disable-slp-vectorization=true --vectorize-slp-aggressive=false /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.ms.bc
+/ag/git/seahorn/build/run/bin/seahorn --keep-shadows=true --horn-solve --horn-answer -horn-cex-pass -horn-cex=/tmp/harness.ll -oll out.ll -horn-inter-proc -horn-sem-lvl=mem --horn-step=large -zverbose 1 -log cex -o out.smt2 /var/folders/_j/1_4mrwbs7y16zbvj79vwvhdc0000gn/T/sea-KOjQOc/list1_check.pp.ms.o.bc --horn-singleton-aliases --horn-sea-dsa-split=false --horn-sea-dsa
+(transform N7datalog13mk_coi_filterE...5 rules 0s)
+(transform N7datalog25mk_interp_tail_simplifierE...5 rules 0.00177265s)
+(transform N7datalog27mk_quantifier_instantiationE...no-op 0s)
+(transform N7datalog8mk_scaleE...no-op 0s)
+(transform N7datalog18mk_karr_invariantsE...no-op 0s)
+(transform N7datalog19mk_array_blast_fullE...no-op 0s)
+(transform N7datalog14mk_array_blastE...no-op 0s)
+(transform N7datalog22mk_subsumption_checkerE...4 rules 0.00271781s)
+(transform N7datalog15mk_rule_inlinerE...no-op 0s)
+(transform N7datalog12mk_bit_blastE...no-op 0s)
+(transform N7datalog13mk_coi_filterE...no-op 0s)
+(transform N7datalog25mk_interp_tail_simplifierE...4 rules 0s)
+(transform N7datalog22mk_subsumption_checkerE...no-op 0s)
+(transform N7datalog15mk_rule_inlinerE...no-op 0s)
+(transform N7datalog13mk_coi_filterE...no-op 0s)
+(transform N7datalog25mk_interp_tail_simplifierE...4 rules 0s)
+(transform N7datalog22mk_subsumption_checkerE...no-op 0s)
+(transform N7datalog15mk_rule_inlinerE...no-op 0s)
+(transform N7datalog22mk_subsumption_checkerE...no-op 0s)
+(transform N7datalog15mk_rule_inlinerE...no-op 0s)
+(transform N7datalog22mk_subsumption_checkerE...no-op 0s)
+(transform N7datalog15mk_rule_inlinerE...no-op 0s)
+(transform N7datalog22mk_subsumption_checkerE...no-op 0s)
+non-diff: (select (:var 7) (:var 16))
+non-utvpi: (select (:var 7) (:var 16))
+expand: query!1 (0, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 0.00 :before-memory 4.06 :after-memory 4.19)
+Entering level 1
+expand: query!1 (1, 0) FAR 1. U 0.00
+expand: main@verifier.error.split (0, 0) FAR 1. F 0.00
+expand: query!1 (1, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 0.00 :before-memory 4.19 :after-memory 4.87)
+Propagating: 0 1  ! 2 
+(spacer::context::propagate :time 0.00 :before-memory 4.87 :after-memory 5.06)
+Entering level 2
+expand: query!1 (2, 0) FAR 1. U 0.00
+expand: main@verifier.error.split (1, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 7018. F 0.01
+expand: main@verifier.error.split (1, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 9233. F 0.01
+expand: main@verifier.error.split (1, 0) FAR 1. F 0.00
+expand: query!1 (2, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 0.02 :before-memory 5.06 :after-memory 6.09)
+Propagating: 0 1 2  ! 3 
+(spacer::context::propagate :time 0.00 :before-memory 6.09 :after-memory 6.18)
+Entering level 3
+expand: query!1 (3, 0) FAR 1. U 0.00
+expand: main@verifier.error.split (2, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 9476. U 0.01
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 9567. F 0.00
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 9476. F 0.01
+expand: main@verifier.error.split (2, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 9787. U 0.01
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 9825. F 0.09
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 9787. F 0.02
+expand: main@verifier.error.split (2, 0) FAR 1. F 0.00
+expand: query!1 (3, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 0.15 :before-memory 6.18 :after-memory 6.60)
+Propagating: 0 1 2 3  ! 4 
+(spacer::context::propagate :time 0.01 :before-memory 6.60 :after-memory 6.62)
+Entering level 4
+expand: query!1 (4, 0) FAR 1. U 0.00
+expand: main@verifier.error.split (3, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 10886. U 0.01
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10218. U 0.02
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 10027. F 0.08
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10218. F 0.04
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 10886. F 0.02
+expand: main@verifier.error.split (3, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 9336. U 0.02
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10895. U 0.06
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 10019. F 0.28
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10895. F 0.08
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 9336. U 0.01
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10737. U 0.06
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 11826. F 0.24
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 10737. F 0.09
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 9336. F 0.03
+expand: main@verifier.error.split (3, 0) FAR 1. F 0.00
+expand: query!1 (4, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 1.06 :before-memory 6.62 :after-memory 7.88)
+Propagating: 0 1 2 3 4  ! 5 
+(spacer::context::propagate :time 0.03 :before-memory 7.88 :after-memory 7.92)
+Entering level 5
+expand: query!1 (5, 0) FAR 1. U 0.00
+expand: main@verifier.error.split (4, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (3, 0) FAR 9760. U 0.01
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 11646. U 0.01
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 13196. U 0.03
+expand: main@mk_foo.exit1.i.split (0, 0) FAR 12138. F 0.00
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 13196. F 0.08
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 11646. F 0.08
+expand: main@mk_foo.exit1.i.split (3, 0) FAR 9760. F 0.01
+expand: main@verifier.error.split (4, 0) FAR 1. U 0.00
+expand: main@mk_foo.exit1.i.split (3, 0) FAR 12073. U 0.02
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 12584. U 0.07
+expand: main@mk_foo.exit1.i.split (1, 0) FAR 12318. F 0.26
+expand: main@mk_foo.exit1.i.split (2, 0) FAR 12584. F 0.12
+expand: main@mk_foo.exit1.i.split (3, 0) FAR 12073. F 0.06
+expand: main@verifier.error.split (4, 0) FAR 1. F 0.00
+expand: query!1 (5, 0) FAR 1. F 0.00
+(spacer::context::check_reachability :time 0.76 :before-memory 7.92 :after-memory 8.04)
+Propagating: 0 1 2 
+(spacer::context::propagate :time 0.09 :before-memory 8.04 :after-memory 8.06)
+(define-fun main@verifier.error.split () Bool
+  false)
+(define-fun main@mk_foo.exit1.i.split ((x!1 (Array Int Int))
+ (x!2 (Array Int Int))
+ (x!3 Int)
+ (x!4 Int)
+ (x!5 Int)
+ (x!6 Int)
+ (x!7 Int)) Bool
+  (let ((a!1 (<= (+ x!7 (* (- 1) (select x!1 x!6))) (- 1)))
+        (a!3 (select x!1 (+ 4 (select x!1 (+ 4 x!6)))))
+        (a!6 (select x!2 (select x!1 (select x!1 (+ 4 x!6)))))
+        (a!7 (+ (select x!1 (select x!1 (+ 4 x!6))) (* (- 1) x!7)))
+        (a!8 (* (- 1) (select x!1 (select x!1 (+ 4 x!6)))))
+        (a!9 (or (>= x!5 2) (>= (select x!1 (+ 4 x!6)) 1))))
+  (let ((a!2 (or a!1
+                 (<= (select x!2 (select x!1 x!6)) 199)
+                 (<= (+ (select x!1 x!6) (* (- 1) x!7)) (- 1))))
+        (a!4 (<= (+ x!7 (* (- 1) (select x!1 a!3))) (- 1))))
+  (let ((a!5 (or (<= (+ (select x!1 a!3) (* (- 1) x!7)) (- 1))
+                 (>= x!5 1)
+                 a!4
+                 (<= (select x!2 (select x!1 a!3)) 199))))
+    (and a!2
+         (>= x!5 0)
+         (not (<= x!6 0))
+         a!5
+         (or (>= x!5 1) (>= a!3 1))
+         (or (<= a!6 199) (<= a!7 (- 1)) (<= (+ x!7 a!8) (- 1)) (>= x!5 2))
+         a!9)))))
+unsat
+Function: main
+main@entry: true
+main@mk_foo.exit1.i.split.us: true
+main@mk_foo.exit1.i.split:
+		(main@%cnt.0.i>=0)
+	(!(main@%it.0.i<=0))
+	[||
+  main@%cnt.0.i>=1
+  (select(main@%_17, @g_bgn)+(-1*select(main@%_107, select(main@%_107, 4+select(main@%_107, 4+main@%it.0.i)))))<=-1
+  select(main@%_83, select(main@%_107, select(main@%_107, 4+select(main@%_107, 4+main@%it.0.i))))<=199
+  (select(main@%_107, select(main@%_107, 4+select(main@%_107, 4+main@%it.0.i)))+(-1*select(main@%_17, @g_bgn)))<=-1
+]
+	((select(main@%_107, 4+select(main@%_107, 4+main@%it.0.i))>=1)||(main@%cnt.0.i>=1))
+	[||
+  (select(main@%_107, select(main@%_107, 4+main@%it.0.i))+(-1*select(main@%_17, @g_bgn)))<=-1
+  (select(main@%_17, @g_bgn)+(-1*select(main@%_107, select(main@%_107, 4+main@%it.0.i))))<=-1
+  main@%cnt.0.i>=2
+  select(main@%_83, select(main@%_107, select(main@%_107, 4+main@%it.0.i)))<=199
+]
+	((select(main@%_107, 4+main@%it.0.i)>=1)||(main@%cnt.0.i>=2))
+	[||
+  select(main@%_83, select(main@%_107, main@%it.0.i))<=199
+  (select(main@%_107, main@%it.0.i)+(-1*select(main@%_17, @g_bgn)))<=-1
+  (select(main@%_17, @g_bgn)+(-1*select(main@%_107, main@%it.0.i)))<=-1
+]
+main@verifier.error.split: false
