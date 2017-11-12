@@ -5,11 +5,8 @@
  ***
  ***/
 
-/** Returns a non-deterministic value */ 
+/** Returns a non-deterministic value */
 extern int nd (void);
-extern void __VERIFIER_assume (int);
-extern void __VERIFIER_error (void);
-void assert (int v) { if (!v) __VERIFIER_error (); }
 
 int main(void)
 {
@@ -20,7 +17,7 @@ int main(void)
   while (x > 0)
     {
       x = x + dir;
-      
+
       if (x > 10) dir = -1 * dir;
       if (x < 5) dir = -1 * dir;
 

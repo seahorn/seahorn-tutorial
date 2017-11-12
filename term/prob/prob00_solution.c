@@ -1,19 +1,16 @@
-
+#include <seahorn/seahorn.h>
+#include<stdio.h>
 /***
  *** returns a counterexample that shows an infinite execution (i.e.,
  *** the same program state is reached twice.
  ***
  ***/
 
-/** Returns a non-deterministic value */ 
+/** Returns a non-deterministic value */
 extern int nd (void);
 
-extern void __VERIFIER_assume (int);
-extern void __VERIFIER_error (void);
-void assert (int v) { if (!v) __VERIFIER_error (); }
 
-
-void main(void)
+int main(void)
 {
 
   /**
@@ -41,27 +38,29 @@ void main(void)
   x = nd ();
   sx = nd ();
   sdir = nd ();
-  __VERIFIER_assume (x != sx);
-  __VERIFIER_assume (sdir != dir);
-  
+  assume (x != sx);
+  assume (sdir != dir);
+
   while (x > 0)
     {
 
+        printf ("in loop: dir=%d, x=%d\n", dir, x);
       // -- non-deterministically either save current state, or check
       // -- if current state is different from saved state. The f flag
       // -- ensures that the state is saved at least once before the
       // -- assertion is made
       if (nd ())
-      {	f = 1;
+      { f = 1;
         sx = x;
         sdir = dir; }
       else
-	assert (!f || (x != sx || dir != sdir));
-     
+          sassert (!f || (x != sx || dir != sdir));
+
       x = x + dir;
-      
+
       if (x > 10) dir = -1 * dir;
       if (x < 5) dir = -1 * dir;
     }
-  
+
+  return 0;
 }
