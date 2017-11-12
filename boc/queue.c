@@ -1,21 +1,9 @@
 /**
- * Check whether main() has a buffer overflow. 
- *
- * Produce a counterexample. Correct. Verify your correction.
- 
- * Commands to use:
- *
- * sea pf --do-bounds-check [--inline] [-g --cex=cex.xml --log=cex] queue.c
+ * Check whether main() has a buffer overflow.
  **/
 
+#include <seahorn/seahorn.h>
 extern int nd (void);
-extern void __VERIFIER_error() __attribute__ ((__noreturn__));
-
-extern void __VERIFIER_assume(int);
-
-#define assume __VERIFIER_assume
-#define assert(v) if (!(v)) __VERIFIER_error();       
-
 #define N 4
 
 int buf[N];
