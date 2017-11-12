@@ -7,7 +7,7 @@
  *** proof. Otherwise, find a counterexample.
  ***/
 
-/* returns a non-deterministic value */ 
+/* returns a non-deterministic value */
 extern int nd (void);
 
 int main()
@@ -23,4 +23,3 @@ int main()
   }
   return 0;
 }
-

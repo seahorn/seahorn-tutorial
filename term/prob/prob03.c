@@ -5,7 +5,7 @@
  ***
  ***/
 
-/* returns a non-deterministic value */ 
+/* returns a non-deterministic value */
 extern int nd (void);
 
 int main()
@@ -13,9 +13,9 @@ int main()
   int x = nd();
   while (x != 0)
   {
-    if (x < 10) 
+    if (x < 10)
       x = x + 1;
-    else 
+    else
       x = -x;
   }
   return 0;

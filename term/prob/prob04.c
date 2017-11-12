@@ -10,19 +10,18 @@ extern int nd (void);
 
 int main()
 {
-  int x = nd(), y = nd();
-  while (x > 0 && y > 0)
-  {
-    if (nd())
+    int x = nd(), y = nd();
+    while (x > 0 && y > 0)
     {
-      x = x - 1;
-      y = nd();
+        if (nd())
+        {
+            x = x - 1;
+            y = nd();
+        }
+        else
+        {
+            y = y - 1;
+        }
     }
-    else
-    {
-      y = y - 1;
-    }
-  }
-  return 0;
+    return 0;
 }
-
