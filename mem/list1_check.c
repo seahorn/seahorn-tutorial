@@ -1,3 +1,4 @@
+/* sea pf --inline */
 #include<seahorn/seahorn.h>
 #include<stdint.h>
 #include<stddef.h>
@@ -11,8 +12,6 @@
 static int8_t* g_bgn;
 static int8_t* g_end;
 static int g_active;
-
-static int8_t* g_high_mem;
 
 extern int nd(void);
 extern int8_t* nd_ptr(void);
@@ -31,8 +30,6 @@ void *xmalloc(size_t sz) {
     void *p;
     p = malloc(sz);
     assume(((ptrdiff_t)p) > 0);
-    /* assume (p == g_high_mem); */
-    /* g_high_mem = g_high_mem + sz; */
     return p;
 }
 Foo *mk_foo (int x) {
@@ -64,7 +61,7 @@ Bar *mk_bar (int x, int y) {
 
 Foo *to_foo(Bar *b) {return (Foo*)b;}
 int is_bar (Foo *b) {return b->tag == BAR_TAG;}
-int is_foo(Foo* b) {return b->tag==FOO_TAG;}
+int is_foo(Foo* b) {return b->tag == FOO_TAG;}
 Bar *to_bar (Foo *b) {return (Bar*)b;}
 
 
@@ -104,14 +101,12 @@ int main(void) {
     List *lst;
     Entry *it;
 
-    g_high_mem = nd_ptr();
-    assume(((ptrdiff_t)g_high_mem) > 0);
     g_bgn = nd_ptr();
     g_end = nd_ptr();
-    g_active = 0;
-
     assume(g_bgn > 0);
     assume(g_end > g_bgn);
+
+    g_active = 0;
 
     lst = mk_list();
     insert (lst, mk_foo(2));
@@ -120,7 +115,6 @@ int main(void) {
 
     unsigned cnt;
     cnt = 0;
-
     for (it = lst->head; it != NULL; it = it->next) {
         Foo *v = (Foo*)(it->data);
         if (is_bar(v)) {
@@ -135,8 +129,7 @@ int main(void) {
             printf("foo: x=%d\n", v->x);
         }
         cnt++;
-        if (cnt > 567) break;
+        if (cnt > 3) break;
     }
     return 0;
-
 }
