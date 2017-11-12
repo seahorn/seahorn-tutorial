@@ -10,19 +10,14 @@ void lock1 (void)
   int in_irq;
   int buf[10];
   int i;
-  
-  
-  if (in_irq) 
+
+
+  if (in_irq)
     lock ();
-  
+
   for (i = 0; i < 5; i++)
     buf [i] = nd();
 
   if (in_irq)
     lock ();
 }
-
-
-
-
-
