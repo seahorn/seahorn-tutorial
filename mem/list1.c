@@ -78,7 +78,6 @@ int main(void) {
         if (is_bar(v)) {
             Bar *b;
             b = to_bar(v);
-            // size of alloc of v > 16
             printf ("bar: x=%d, y=%d\n", v->x, b->y);
         }
         else {
