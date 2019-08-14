@@ -262,6 +262,35 @@ def vc_gen_ta(T, terms):
 
     return [vc_init, vc_ind, vc_bad], InvPre
 
+
+def vc_gen_part(T, partitions):
+    '''Partitioned abstraction'''
+
+    def _mk_inv_pred(name, vars):
+        sig = [v.sort() for v in vars] + [z3.BoolSort()]
+        inv = z3.Function(name, *sig)
+        return inv(vars)
+
+    part_inv = [_mk_inv_pred('Inv_' + str(i), vars)
+                for i, vars in enumerate(partitions)]
+
+
+    vc = list()
+    all_vars = T.all()
+    for inv in part_inv:
+        vc.append(z3.ForAll(all_vars, z3.Implies(T.Init, inv)))
+
+    preInvs = z3.And(part_inv)
+    for inv in part_inv:
+        postInv = T.to_post(inv)
+        vc.append(z3.ForAll(all_vars,
+                            z3.Implies(z3.And(preInvs, T.Tr),
+                                       postInv)))
+    vc.append(z3.ForAll(all_vars,
+                        z3.Implies(z3.And(preInvs, T.Bad),
+                                   z3.BoolVal(False))))
+    return vc, preInvs
+
 def free_arith_vars(fml):
     '''Returns the set of all integer uninterpreted constants in a given formula'''
     seen = set([])
@@ -561,6 +590,21 @@ def test_vc_pa3():
     print(res)
     print(mdl.eval(inv))
 
+def test_vc_part():
+    Ts = mk_ts2()
+
+    a, b, c, d = Ts.get_pre_vars('a b c d')
+    # vc, inv = vc_gen_part(Ts, [[a], [b], [c], [d]])
+    # another interesting partition
+    # vc, inv = vc_gen_part(Ts, [[a, c], [b, c], [d]])
+    vc, inv = vc_gen_part(Ts, [[a, c, b, d], [b], [d]])
+    print(chc_to_str(vc))
+    res, mdl = solve_horn(vc)
+    print(res)
+    if res == z3.sat:
+        print(mdl.eval(inv))
+
+
 
 def main():
     # proof mode must be enabled before any expressions are created
@@ -588,6 +632,7 @@ def main():
 
     test_vc_pa3()
 
+    test_vc_part()
 
 if __name__ == '__main__':
     sys.exit(main())
