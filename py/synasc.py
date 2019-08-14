@@ -271,8 +271,8 @@ def vc_gen_part(T, partitions):
         inv = z3.Function(name, *sig)
         return inv(vars)
 
-    part_inv = [_mk_inv_pred('Inv_' + str(i), vars)
-                for i, vars in enumerate(partitions)]
+    part_inv = [_mk_inv_pred('PartInv_' + str(pname), vars)
+                for pname, vars in partitions.items()]
 
 
     vc = list()
@@ -594,16 +594,18 @@ def test_vc_part():
     Ts = mk_ts2()
 
     a, b, c, d = Ts.get_pre_vars('a b c d')
-    # vc, inv = vc_gen_part(Ts, [[a], [b], [c], [d]])
+    vc, inv = vc_gen_part(Ts, { "a":[a], "b":[b], "c":[c], "d":[d] })
     # another interesting partition
-    # vc, inv = vc_gen_part(Ts, [[a, c], [b, c], [d]])
-    vc, inv = vc_gen_part(Ts, [[a, c, b, d], [b], [d]])
+    vc, inv = vc_gen_part(Ts, { "ac":[a, c], "bc":[b, c], "d":[d] })
+    vc, inv = vc_gen_part(Ts, { "cbd": [c, b, d], "b": [b], "d": [d] })
     print(chc_to_str(vc))
     res, mdl = solve_horn(vc)
     print(res)
     if res == z3.sat:
         print(mdl.eval(inv))
-
+    elif res == z3.unsat:
+        spf = SpacerProof(mdl)
+        print(spf)
 
 
 def main():
