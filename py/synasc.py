@@ -14,6 +14,20 @@ class HtmlStr(object):
         return str(self._s)
 
 class Ts(object):
+    """A transition system
+
+    Example usage
+    >>> T = Ts('Ts0')
+    >>> x, x_out = T.add_var(z3.IntSort(), name='x')
+    >>> T.Init = x <= 0
+    >>> T.Tr = z3.And(x < 5, x_out == x + 1)
+    >>> T.Bad = x >= 10
+    >>> T                                   #doctest: +NORMALIZE_WHITESPACE
+    Transition System: Ts0
+        Init: v_0 <= 0
+        Bad: v_0 >= 10
+        Tr: And(v_0 < 5, v_out_0 == v_0 + 1)
+    """
     def __init__(self, name='Ts'):
         # string name
         self._name = name
@@ -46,6 +60,24 @@ class Ts(object):
         return (v_in, v_out)
 
     def get_var(self, idx):
+        """Returns a pair of pre- and post-variables with a given index or name
+
+        If idx is not an int it is interpreted as a name.
+        Otherwise, it is interpreted as a variable index.
+
+        >>> T = Ts('Ts0')
+        >>> x, x_out = T.add_var(z3.IntSort(), name='x')
+        >>> y, y_out = T.add_var(z3.IntSort(), name='y')
+        >>> x
+        v_0
+
+        >>> T.get_var(1)
+        (v_1, v_out_1)
+
+        >>> T.get_var('x')
+        (v_0, v_out_0)
+
+        """
         if isinstance(idx, int):
             return self._vars[idx]
         elif idx in self._named_vars:
@@ -53,15 +85,18 @@ class Ts(object):
         return None
 
     def get_pre_var(self, idx):
+        """Returns a pre-state variable with a given name/index"""
         res = self.get_var(idx)
         if res is not None:
             return res[0]
         return None
 
     def get_pre_vars(self, vars):
+        """Returns a tuple of pre-state variables with given names"""
         return (self.get_pre_var(v) for v in vars.split())
 
     def get_post_var(self, idx):
+        """Returns a post-state variable with a given name"""
         res = self.get_var(idx)
         if res is not None:
             return res[1]
@@ -86,7 +121,15 @@ class Ts(object):
     def sig(self):
         return [v.sort() for (u, v) in self._vars]
     def to_post(self, e):
-        '''Rename expression over pre-state variables to post-state variables'''
+        '''Rename expression over pre-state variables to post-state variables
+
+        >>> T = Ts('Ts0')
+        >>> x, x_out = T.add_var(z3.IntSort(), 'x')
+        >>> y, y_out = T.add_var(z3.IntSort(), 'y')
+        >>> e = x > y
+        >>> T.to_post(x > y)
+        v_out_0 > v_out_1
+        '''
         return z3.substitute(e, *self._vars)
 
     def _new_input_name(self):
@@ -128,7 +171,6 @@ def vc_gen(T):
 def vc_gen_bwd(T):
     '''Verification Condition (VC) for Backward Inductive Invariant'''
 
-    # create predicate Inv
     Inv = z3.Function('BwdInv', *(T.sig() + [z3.BoolSort()]))
 
     InvPre = Inv(*T.pre_vars())
@@ -142,7 +184,10 @@ def vc_gen_bwd(T):
     return [vc_init, vc_ind, vc_bad], InvPre
 
 class CFA(object):
-    '''Control Flow Automaton -- An automation whose nodes are annotated with transition relations'''
+    '''Control Flow Automaton
+
+    An automation whose nodes are annotated with transition relations
+    '''
     def __init__(self, name):
         self._base = Ts(name)
 
@@ -221,7 +266,8 @@ def cfa_vc_gen(A):
         head = dstP(*A.post_vars())
         sPred = srcP(*A.pre_vars())
         vc.append(z3.ForAll(all_vars, z3.Implies(z3.And(sPred, v), head)))
-    vc.append(z3.ForAll(all_vars, z3.Implies(Exit(*A.pre_vars()), z3.BoolVal(False))))
+    vc.append(z3.ForAll(all_vars,
+                        z3.Implies(Exit(*A.pre_vars()), z3.BoolVal(False))))
     return vc, {n : Invs[n](A.pre_vars()) for n in A.nodes} 
 
 def vc_gen_pa(T, preds):
@@ -239,7 +285,8 @@ def vc_gen_pa(T, preds):
     InvPost = Inv(*post_preds)
     vc_init = z3.ForAll(all_vars, z3.Implies(T.Init, InvPre))
     vc_ind = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, T.Tr), InvPost))
-    vc_bad = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, T.Bad), z3.BoolVal(False)))
+    vc_bad = z3.ForAll(all_vars,
+                       z3.Implies(z3.And(InvPre, T.Bad), z3.BoolVal(False)))
 
     return [vc_init, vc_ind, vc_bad], InvPre
 
@@ -258,7 +305,8 @@ def vc_gen_ta(T, terms):
 
     vc_init = z3.ForAll(all_vars, z3.Implies(T.Init, InvPre))
     vc_ind = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, T.Tr), InvPost))
-    vc_bad = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, T.Bad), z3.BoolVal(False)))
+    vc_bad = z3.ForAll(all_vars,
+                       z3.Implies(z3.And(InvPre, T.Bad), z3.BoolVal(False)))
 
     return [vc_init, vc_ind, vc_bad], InvPre
 
@@ -292,7 +340,7 @@ def vc_gen_part(T, partitions):
     return vc, preInvs
 
 def free_arith_vars(fml):
-    '''Returns the set of all integer uninterpreted constants in a given formula'''
+    '''Returns the set of all integer uninterpreted constants in a formula'''
     seen = set([])
     vars = set([])
 
