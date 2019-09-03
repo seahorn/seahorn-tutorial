@@ -4,7 +4,7 @@ import sys
 ## Uncomment and change <SEAHORN> to the location of SeaHorn distribution
 ##
 #sys.path = ['<SEAHORN>/lib/python2.7/dist-packages/'] + sys.path
-
+sys.path = ['/ag/git/seahorn/build/run/lib/python2.7/dist-packages/'] + sys.path
 import z3
 
 def main():

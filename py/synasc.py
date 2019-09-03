@@ -30,7 +30,7 @@ class Ts(object):
     """
     def __init__(self, name='Ts'):
         # string name
-        self._name = name
+        self.name = name
         # state variables (pair of input and output)
         self._vars = []
         # inputs
@@ -147,7 +147,7 @@ class Ts(object):
         return 'v_out_' + str(idx)
 
     def __repr__(self):
-        return 'Transition System: ' + self._name + '\n' + \
+        return 'Transition System: ' + self.name + '\n' + \
             '\tInit: ' + str(self.Init) + '\n' + \
             '\tBad: ' + str(self.Bad) + '\n' + \
             '\tTr: ' + str(self.Tr)
@@ -268,7 +268,7 @@ def cfa_vc_gen(A):
         vc.append(z3.ForAll(all_vars, z3.Implies(z3.And(sPred, v), head)))
     vc.append(z3.ForAll(all_vars,
                         z3.Implies(Exit(*A.pre_vars()), z3.BoolVal(False))))
-    return vc, {n : Invs[n](A.pre_vars()) for n in A.nodes} 
+    return vc, {n : Invs[n](A.pre_vars()) for n in A.nodes}
 
 def vc_gen_pa(T, preds):
     '''Verification Condition for Predicate Abstraction'''
@@ -525,6 +525,52 @@ def test_itp():
     itp = interpolate(z3.And(a < x, x < b), z3.And(b < a))
     print("Interpolant:", itp)
 
+def mk_seq(T1, T2, constraint = None):
+    """
+    Constructs a sequential composition of two transition systems.
+
+    An optional constraint is added on the glue variables of the composition.
+    The constraint must be specified over pre-state variables of T1
+    """
+    assert(len(T1.post_vars()) == len(T2.post_vars()))
+    for v1, v2 in zip(T1.post_vars(), T2.pre_vars()):
+        assert(v1.sort() == v2.sort())
+
+    TSeq = Ts(T1.name + ';' + T2.name)
+    for v in T1.pre_vars():
+        TSeq.add_var(v.sort())
+
+    glue = [TSeq.add_input(v.sort()) for v in T1.post_vars()]
+    Tr1 = z3.substitute(T1.Tr, *list(zip(T1.post_vars(), glue)))
+    Tr2 = z3.substitute(T2.Tr, *list(zip(T2.pre_vars(), glue)))
+
+    # if there is an optional constraint, shift it to the glue variables
+    C = z3.BoolVal(True)
+    if constraint is not None:
+       C = z3.substitute(constraint, *list(zip(T1.pre_vars(), glue)))
+
+    TSeq.Tr = z3.simplify(z3.And(Tr1, Tr2, C))
+
+    TSeq.Init = T1.Init
+    TSeq.Bad = T2.Bad
+
+    return TSeq
+
+def test_seq(safe=True):
+    T = mk_ts0(safe)
+    TT = mk_seq(T, T)
+    vc, inv = vc_gen(TT)
+    print(chc_to_str(vc))
+    if safe:
+        res, model = solve_horn(vc)
+        print(res)
+        print(model.eval(inv))
+    else:
+        res, pf = solve_horn(vc)
+        print(res)
+        spf = SpacerProof(pf)
+        print(spf)
+
 def test_vc(safe=True):
     T = mk_ts0(safe)
     vc, inv = vc_gen(T)
@@ -683,6 +729,8 @@ def main():
     test_vc_pa3()
 
     test_vc_part()
+
+    test_seq()
 
 if __name__ == '__main__':
     sys.exit(main())
