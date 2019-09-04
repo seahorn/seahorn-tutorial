@@ -428,19 +428,24 @@ def mk_ts2():
     T.Bad = z3.Not(d >= 0)
     return T
 
-def solve_horn(chc, pp=False, max_unfold=10, verbosity=0):
+def solve_horn(chc, pp=False, q3=False, max_unfold=10, verbosity=0):
     z3.set_param(verbose=verbosity)
 
     s = z3.SolverFor('HORN')
+    s.set('engine', 'spacer')
     if not pp:
         s.set('xform.inline_eager', False)
         s.set('xform.inline_linear', False)
         s.set('xform.slice', False)
-        s.set('engine', 'spacer')
 
     if max_unfold > 0:
         s.set('spacer.max_level', max_unfold)
 
+    if q3:
+        # allow quantified variables in pobs
+        s.set('spacer.ground_pobs', False)
+        # enable quantified generalization
+        s.set('spacer.q3.use_qgen', True)
 
     s.add(chc)
     if verbosity > 0:
@@ -556,6 +561,30 @@ def mk_seq(T1, T2, constraint = None):
 
     return TSeq
 
+def vc_gen_2ind(T):
+    """Verification condition for 2-inductive invariant"""
+    Inv = z3.Function('2Inv', *(T.sig() + [z3.BoolSort()]))
+
+    InvPre = Inv(*T.pre_vars())
+    InvPost = Inv(*T.post_vars())
+
+    all_vars = T.all()
+    # Inv contains initial states
+    vc_init1 = z3.ForAll(all_vars, z3.Implies(T.Init, InvPre))
+    # Inv contains states reachable in one step
+    vc_init2 = z3.ForAll(all_vars, z3.Implies(z3.And(T.Init, T.Tr), InvPost))
+
+    # Inv is stable under two steps of Tr , assuming Inv holds after first step
+    TSeq = mk_seq(T, T, constraint = InvPre)
+    InvPost = Inv(*TSeq.post_vars())
+    all_vars = TSeq.all()
+    vc_ind = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, TSeq.Tr), InvPost))
+
+    # Inv does not satisfy Bad
+    vc_bad = z3.ForAll(all_vars, z3.Implies(z3.And(InvPre, T.Bad), z3.BoolVal(False)))
+
+    return [vc_init1, vc_init2, vc_ind, vc_bad], InvPre
+
 def test_seq(safe=True):
     T = mk_ts0(safe)
     TT = mk_seq(T, T)
@@ -599,6 +628,21 @@ def test_vc_bwd(safe=True):
         spf = SpacerProof(pf)
         print(spf)
 
+def test_vc_2ind(safe=True):
+    T = mk_ts0(safe)
+    vc, inv = vc_gen_2ind(T)
+    print(chc_to_str(vc))
+    if safe:
+        res, model = solve_horn(vc)
+        print(res)
+        print(model.eval(inv))
+    else:
+        res, pf = solve_horn(vc)
+        print(res)
+        spf = SpacerProof(pf)
+        print(spf)
+
+
 def mk_cfa0(safe=True):
     A = CFA('prog')
     x, x_out = A.add_var(z3.IntSort())
@@ -612,6 +656,33 @@ def mk_cfa0(safe=True):
 
     A.set_entry_node('L0')
     A.set_exit_node('L2')
+    return A
+
+def mk_cfa1(safe=True):
+    A = CFA('prog2')
+    ZZ = z3.IntSort()
+    Mem, Mem_out = A.add_var(z3.ArraySort(ZZ, ZZ))
+    N, N_out = A.add_var(ZZ)
+    cnt, cnt_out = A.add_var(ZZ)
+    # local variable
+    j = A.add_input(ZZ)
+
+    # initially counter is 0, N is positive
+    init_tr = z3.And(cnt_out == 0, N_out > 0)
+    A.add_edge('entry', 'L0', init_tr)
+
+    # if cnt < N then Mem[cnt++] := 0
+    loop_tr = z3.And(cnt < N,
+                     cnt_out == cnt + 1,
+                     Mem_out == z3.Update(Mem, cnt,  0))
+    A.add_edge('L0', 'L0', loop_tr)
+
+    # if 0 <= j < cnt then assert(Mem[j] == 0)
+    bad_tr = z3.And(0 <= j, j < cnt, Mem[j] != 0)
+    A.add_edge('L0', 'exit', bad_tr)
+
+    A.set_entry_node('entry')
+    A.set_exit_node('exit')
     return A
 
 def test_vc_cfa(safe=True):
@@ -629,6 +700,26 @@ def test_vc_cfa(safe=True):
         print(res)
         spf = SpacerProof(pf)
         print(spf)
+
+def test_vc_cfa1(safe=True):
+    A = mk_cfa1(safe)
+
+    vc, inv_map = cfa_vc_gen(A)
+    print(chc_to_str(vc))
+    if safe:
+        res, model = solve_horn(vc, q3=True)
+        print(res)
+        if res == z3.sat:
+            for k, v in inv_map.items():
+                print('Inv at', k, 'is', model.eval(v))
+        else:
+            print('Failed to find a solution')
+    else:
+        res, pf = solve_horn(vc)
+        print(res)
+        spf = SpacerProof(pf)
+        print(spf)
+
 
 def test_vc_pa():
     T = mk_ts0()
@@ -718,6 +809,8 @@ def main():
     test_vc_cfa(safe=True)
     test_vc_cfa(safe=False)
 
+    test_vc_cfa1(safe=True)
+
     test_vc_pa()
 
     test_vc_ta()
@@ -731,6 +824,11 @@ def main():
     test_vc_part()
 
     test_seq()
+
+    test_vc_2ind(safe=True)
+
+    test_vc_2ind(safe=False)
+
 
 if __name__ == '__main__':
     sys.exit(main())
