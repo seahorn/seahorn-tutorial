@@ -554,7 +554,10 @@ def mk_seq(T1, T2, constraint = None):
     An optional constraint is added on the glue variables of the composition.
     The constraint must be specified over pre-state variables of T1
     """
-    assert(len(T1.post_vars()) == len(T2.post_vars()))
+    assert len(T1.post_vars()) == len(T2.post_vars())
+    assert len(T1.inputs()) == 0, "Not supported yet"
+    assert len(T2.inputs()) == 0, "Not supported yet"
+
     for v1, v2 in zip(T1.post_vars(), T2.pre_vars()):
         assert(v1.sort() == v2.sort())
 
@@ -577,6 +580,24 @@ def mk_seq(T1, T2, constraint = None):
     TSeq.Bad = T2.Bad
 
     return TSeq
+
+def mk_bnd(T, N):
+    """
+    Bound a given transition system by to at most N iterations
+
+    Transforms a given transition system T into a transition system T_N
+    that executes for at most N steps
+    """
+
+    import copy
+    TN = copy.copy(T)
+    TN.name += '_bnd_' + str(N)
+    bnd, bnd_out = TN.add_var(z3.IntSort(), "bnd")
+    TN.Init = z3.simplify(z3.And(T.Init, bnd == N))
+    TN.Tr = z3.simplify(z3.And(T.Tr, bnd_out < bnd, bnd_out >= 0))
+    TN.Bad = T.Bad
+
+    return TN
 
 def vc_gen_2ind(T):
     """Verification condition for 2-inductive invariant"""
@@ -757,6 +778,18 @@ def test_vc_ta():
     print(model.eval(inv))
 
 
+def test_bnd():
+    Ts = mk_ts2()
+    Ts = mk_bnd(Ts, 5)
+    print(Ts)
+
+    chc, inv = vc_gen(Ts)
+    print(chc)
+    res, answer = solve_horn(chc)
+    print(res)
+    if res == z3.sat:
+        print(answer.eval(inv))
+
 def test_vc_ta2(safe=True):
     Ts = mk_ts1(safe)
 
@@ -792,14 +825,17 @@ def test_vc_pa3():
     print(res)
     print(mdl.eval(inv))
 
-def test_vc_part():
+def test_vc_part(part):
     Ts = mk_ts2()
 
     a, b, c, d = Ts.get_pre_vars('a b c d')
-    vc, inv = vc_gen_part(Ts, { "a":[a], "b":[b], "c":[c], "d":[d] })
+    if part == 1:
+        vc, inv = vc_gen_part(Ts, { "a":[a], "b":[b], "c":[c], "d":[d] })
     # another interesting partition
-    vc, inv = vc_gen_part(Ts, { "ac":[a, c], "bc":[b, c], "d":[d] })
-    vc, inv = vc_gen_part(Ts, { "cbd": [c, b, d], "b": [b], "d": [d] })
+    elif part == 2:
+        vc, inv = vc_gen_part(Ts, { "ac":[a, c], "bc":[b, c], "d":[d] })
+    else:
+        vc, inv = vc_gen_part(Ts, { "cbd": [c, b, d], "b": [b], "d": [d] })
     print(chc_to_str(vc))
     res, mdl = solve_horn(vc)
     print(res)
@@ -838,7 +874,11 @@ def main():
 
     test_vc_pa3()
 
-    test_vc_part()
+    test_bnd()
+
+    test_vc_part(1)
+    test_vc_part(2)
+    test_vc_part(3)
 
     test_seq()
 
