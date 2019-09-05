@@ -50,7 +50,7 @@ class Ts(object):
         '''Add a state variable of a given sort. Returns a pair (pre, post)
            of a pre- and post- state versions of the variable
         '''
-        pre, post = self._new_var_name()
+        pre, post = self._new_var_name(name=name)
         v_in = z3.Const(pre, sort)
         v_out = z3.Const(post, sort)
         self._vars.append((v_in, v_out))
@@ -102,9 +102,9 @@ class Ts(object):
             return res[1]
         return None
 
-    def add_input(self, sort):
+    def add_input(self, sort, name=None):
         '''Add an input of a given sort'''
-        v = z3.Const(self._new_input_name(), sort)
+        v = z3.Const(self._new_input_name(name=name), sort)
         self._inputs.append(v)
         return v
 
@@ -132,14 +132,21 @@ class Ts(object):
         '''
         return z3.substitute(e, *self._vars)
 
-    def _new_input_name(self):
-        return self._mk_input_name(len(self._inputs))
+    def _new_input_name(self, name=None):
+        if name is not None:
+            return str(name)
+        else:
+            return self._mk_input_name(len(self._inputs))
+
     def _mk_input_name(self, idx):
         return 'i_' + str(idx)
 
-    def _new_var_name(self):
-        idx = len(self._vars)
-        return self._mk_var_name(idx), self._mk_post_var_name(idx)
+    def _new_var_name(self, name=None):
+        if name is not None:
+            return str(name), str(name) + "'" 
+        else:
+            idx = len(self._vars)
+            return self._mk_var_name(idx), self._mk_post_var_name(idx)
 
     def _mk_var_name(self, idx):
         return 'v_' + str(idx)
@@ -208,10 +215,10 @@ class CFA(object):
         return self._base.vars()
     def all(self):
         return self._base.all()
-    def add_var(self, sort):
-        return self._base.add_var(sort)
-    def add_input(self, sort):
-        return self._base.add_input(sort)
+    def add_var(self, sort, name=None):
+        return self._base.add_var(sort, name)
+    def add_input(self, sort, name=None):
+        return self._base.add_input(sort, name)
 
     def add_edge(self, src, dst, tr):
         self.nodes.add(src)
@@ -661,11 +668,11 @@ def mk_cfa0(safe=True):
 def mk_cfa1(safe=True):
     A = CFA('prog2')
     ZZ = z3.IntSort()
-    Mem, Mem_out = A.add_var(z3.ArraySort(ZZ, ZZ))
-    N, N_out = A.add_var(ZZ)
-    cnt, cnt_out = A.add_var(ZZ)
+    Mem, Mem_out = A.add_var(z3.ArraySort(ZZ, ZZ), name='MEM')
+    N, N_out = A.add_var(ZZ, name='N')
+    cnt, cnt_out = A.add_var(ZZ, name='cnt')
     # local variable
-    j = A.add_input(ZZ)
+    j = A.add_input(ZZ, name='j')
 
     # initially counter is 0, N is positive
     init_tr = z3.And(cnt_out == 0, N_out > 0)
