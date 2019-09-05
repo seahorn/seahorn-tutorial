@@ -35,9 +35,12 @@ class Ts(object):
         self._vars = []
         # inputs
         self._inputs = []
-
         # a map from optional names to state variables
         self._named_vars = dict()
+
+        # maps state variable index to optional name
+        self._var_names = list()
+
         # Transition relation
         self.Tr = z3.BoolVal(True)
         # Initial condition
@@ -54,8 +57,9 @@ class Ts(object):
         v_in = z3.Const(pre, sort)
         v_out = z3.Const(post, sort)
         self._vars.append((v_in, v_out))
+        self._var_names.append(name)
         if name is not None:
-            self._named_vars[name] = (v_in, v_out)
+            self._named_vars[name] = (v_in, v_out) 
 
         return (v_in, v_out)
 
@@ -82,6 +86,11 @@ class Ts(object):
             return self._vars[idx]
         elif idx in self._named_vars:
             return self._named_vars[idx]
+        return None
+
+    def get_var_name(self, idx):
+        if idx < len(self._var_names):
+            return self._var_names[idx]
         return None
 
     def get_pre_var(self, idx):
@@ -550,8 +559,8 @@ def mk_seq(T1, T2, constraint = None):
         assert(v1.sort() == v2.sort())
 
     TSeq = Ts(T1.name + ';' + T2.name)
-    for v in T1.pre_vars():
-        TSeq.add_var(v.sort(), v.decl().name())
+    for idx, v in enumerate(T1.pre_vars()):
+        TSeq.add_var(v.sort(), T1.get_var_name(idx))
 
     glue = [TSeq.add_input(v.sort()) for v in T1.post_vars()]
     Tr1 = z3.substitute(T1.Tr, *list(zip(T1.post_vars(), glue)))
