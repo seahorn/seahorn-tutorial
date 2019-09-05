@@ -143,6 +143,8 @@ class Ts(object):
 
     def _new_var_name(self, name=None):
         if name is not None:
+            assert name not in self._named_vars
+            assert str(name) not in self._named_vars
             return str(name), str(name) + "'" 
         else:
             idx = len(self._vars)
@@ -458,7 +460,6 @@ def solve_horn(chc, pp=False, q3=False, max_unfold=10, verbosity=0):
     if verbosity > 0:
         print(s.sexpr())
     res = s.check()
-    print('result is', res)
     answer = None
     if res == z3.sat:
         answer = s.model()
@@ -550,7 +551,7 @@ def mk_seq(T1, T2, constraint = None):
 
     TSeq = Ts(T1.name + ';' + T2.name)
     for v in T1.pre_vars():
-        TSeq.add_var(v.sort())
+        TSeq.add_var(v.sort(), v.decl().name())
 
     glue = [TSeq.add_input(v.sort()) for v in T1.post_vars()]
     Tr1 = z3.substitute(T1.Tr, *list(zip(T1.post_vars(), glue)))
